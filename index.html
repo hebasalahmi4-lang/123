@@ -1,0 +1,818 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Ash's Daily Report</title>
+  <script src="https://cdn.tailwindcss.com/3.4.17"></script>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
+  <style>
+    body {
+      font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+    }
+    .mood-btn.active {
+      transform: translateY(-2px) scale(1.04);
+      box-shadow: 0 8px 20px -4px rgba(79, 70, 229, 0.35);
+    }
+    .theme-swatch.active {
+      outline: 3px solid #4f46e5;
+      outline-offset: 2px;
+    }
+  </style>
+</head>
+<body class="bg-slate-950 text-slate-100 min-h-screen antialiased selection:bg-indigo-500 selection:text-white">
+
+  <!-- Toast Notification -->
+  <div id="toastContainer" class="fixed top-4 right-4 z-50 pointer-events-none flex flex-col gap-2"></div>
+
+  <!-- Top Bar -->
+  <header class="border-b border-slate-800/80 bg-slate-900/80 backdrop-blur sticky top-0 z-30">
+    <div class="max-w-6xl mx-auto px-4 py-3 flex flex-wrap items-center justify-between gap-3">
+      <div class="flex items-center gap-3">
+        <div class="w-10 h-10 rounded-xl bg-gradient-to-br from-indigo-500 to-emerald-500 flex items-center justify-center text-xl font-bold shadow-lg shadow-indigo-500/20">
+          📊
+        </div>
+        <div>
+          <h1 class="text-base sm:text-lg font-bold tracking-tight text-white">Ash's Daily Report</h1>
+          <p class="text-xs text-slate-400">Simple daily report card webpage</p>
+        </div>
+      </div>
+
+      <div class="flex items-center gap-2">
+        <button type="button" onclick="downloadStandaloneAppFile()" class="px-4 py-2 rounded-xl text-xs sm:text-sm font-bold bg-emerald-600 hover:bg-emerald-500 text-white shadow-lg shadow-emerald-600/20 transition">
+          ⬇️ Download HTML File
+        </button>
+      </div>
+    </div>
+  </header>
+
+  <!-- Main Content -->
+  <main class="max-w-6xl mx-auto px-4 py-6">
+    <section id="viewStudio" class="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
+
+      <!-- Left Column: Simple Input Form -->
+      <div class="lg:col-span-6 bg-slate-900 border border-slate-800 rounded-2xl p-5 sm:p-6 shadow-xl space-y-5">
+        <div class="flex items-center justify-between border-b border-slate-800 pb-4">
+          <div>
+            <h2 class="text-base sm:text-lg font-bold text-white">Fill Today's Details</h2>
+            <p class="text-xs text-slate-400">Updates your picture report card live</p>
+          </div>
+          <button type="button" onclick="resetToDefaults()" class="text-xs font-medium text-slate-400 hover:text-indigo-400 px-2.5 py-1.5 rounded-lg bg-slate-800/70 hover:bg-slate-800 transition">
+            Reset Form
+          </button>
+        </div>
+
+        <!-- Title & Date -->
+        <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+          <div>
+            <label for="inputName" class="block text-xs font-semibold uppercase tracking-wider text-slate-400 mb-1.5">Report Title</label>
+            <input id="inputName" type="text" value="Ash's Daily Report" oninput="handleFormChange()" placeholder="Ash's Daily Report" class="w-full rounded-xl bg-slate-950 border border-slate-800 px-3.5 py-2.5 text-sm text-white focus:outline-none focus:border-indigo-500" />
+          </div>
+          <div>
+            <label for="inputDate" class="block text-xs font-semibold uppercase tracking-wider text-slate-400 mb-1.5">Report Date</label>
+            <input id="inputDate" type="date" oninput="handleFormChange()" class="w-full rounded-xl bg-slate-950 border border-slate-800 px-3.5 py-2.5 text-sm text-white focus:outline-none focus:border-indigo-500" />
+          </div>
+        </div>
+
+        <!-- 1. Study Time -->
+        <div class="p-4 rounded-xl bg-slate-950/70 border border-slate-800/90 space-y-3">
+          <div class="flex items-center justify-between">
+            <label class="text-sm font-semibold text-indigo-300 flex items-center gap-2">
+              <span>📚 Study Time</span>
+            </label>
+            <span id="studyTargetLabel" class="text-xs font-medium text-slate-400">Goal: 8h 0m</span>
+          </div>
+          <div class="grid grid-cols-3 gap-3">
+            <div>
+              <label for="studyHours" class="block text-xs text-slate-400 mb-1">Hours</label>
+              <input id="studyHours" type="number" min="0" max="24" step="1" value="6" oninput="handleFormChange()" class="w-full rounded-lg bg-slate-900 border border-slate-700 px-3 py-2 text-sm font-semibold text-white focus:outline-none focus:border-indigo-500" />
+            </div>
+            <div>
+              <label for="studyMins" class="block text-xs text-slate-400 mb-1">Minutes</label>
+              <input id="studyMins" type="number" min="0" max="59" step="5" value="30" oninput="handleFormChange()" class="w-full rounded-lg bg-slate-900 border border-slate-700 px-3 py-2 text-sm font-semibold text-white focus:outline-none focus:border-indigo-500" />
+            </div>
+            <div>
+              <label for="studyGoalHours" class="block text-xs text-slate-400 mb-1">Daily Goal (Hrs)</label>
+              <input id="studyGoalHours" type="number" min="1" max="18" step="0.5" value="8" oninput="handleFormChange()" class="w-full rounded-lg bg-slate-900 border border-slate-700 px-3 py-2 text-sm font-semibold text-slate-300 focus:outline-none focus:border-indigo-500" />
+            </div>
+          </div>
+          <div class="flex flex-wrap gap-1.5 pt-1">
+            <span class="text-xs text-slate-500 mr-1 self-center">Quick set:</span>
+            <button type="button" onclick="setStudyQuick(4, 0)" class="px-2.5 py-1 text-xs rounded-md bg-slate-800 hover:bg-slate-700 text-slate-300">4h</button>
+            <button type="button" onclick="setStudyQuick(6, 0)" class="px-2.5 py-1 text-xs rounded-md bg-slate-800 hover:bg-slate-700 text-slate-300">6h</button>
+            <button type="button" onclick="setStudyQuick(7, 30)" class="px-2.5 py-1 text-xs rounded-md bg-slate-800 hover:bg-slate-700 text-slate-300">7h 30m</button>
+            <button type="button" onclick="setStudyQuick(9, 0)" class="px-2.5 py-1 text-xs rounded-md bg-slate-800 hover:bg-slate-700 text-slate-300">9h</button>
+          </div>
+        </div>
+
+        <!-- 2. Screen Time (Default Limit: 5 Hours) -->
+        <div class="p-4 rounded-xl bg-slate-950/70 border border-slate-800/90 space-y-3">
+          <div class="flex items-center justify-between">
+            <label class="text-sm font-semibold text-rose-300 flex items-center gap-2">
+              <span>📱 Screen Time</span>
+            </label>
+            <span id="screenLimitLabel" class="text-xs font-medium text-slate-400">Limit: 5h 0m</span>
+          </div>
+          <div class="grid grid-cols-3 gap-3">
+            <div>
+              <label for="screenHours" class="block text-xs text-slate-400 mb-1">Hours</label>
+              <input id="screenHours" type="number" min="0" max="24" step="1" value="1" oninput="handleFormChange()" class="w-full rounded-lg bg-slate-900 border border-slate-700 px-3 py-2 text-sm font-semibold text-white focus:outline-none focus:border-indigo-500" />
+            </div>
+            <div>
+              <label for="screenMins" class="block text-xs text-slate-400 mb-1">Minutes</label>
+              <input id="screenMins" type="number" min="0" max="59" step="5" value="45" oninput="handleFormChange()" class="w-full rounded-lg bg-slate-900 border border-slate-700 px-3 py-2 text-sm font-semibold text-white focus:outline-none focus:border-indigo-500" />
+            </div>
+            <div>
+              <label for="screenLimitHours" class="block text-xs text-slate-400 mb-1">Daily Limit (Hrs)</label>
+              <input id="screenLimitHours" type="number" min="0.5" max="12" step="0.5" value="5" oninput="handleFormChange()" class="w-full rounded-lg bg-slate-900 border border-slate-700 px-3 py-2 text-sm font-semibold text-slate-300 focus:outline-none focus:border-indigo-500" />
+            </div>
+          </div>
+        </div>
+
+        <!-- 3. Step Count (Default Empty) -->
+        <div class="p-4 rounded-xl bg-slate-950/70 border border-slate-800/90 space-y-3">
+          <div class="flex items-center justify-between">
+            <label for="stepCount" class="text-sm font-semibold text-emerald-300 flex items-center gap-2">
+              <span>👟 Step Count</span>
+            </label>
+            <span id="stepGoalLabel" class="text-xs font-medium text-slate-400">Goal: 10,000 steps</span>
+          </div>
+          <div class="grid grid-cols-2 gap-3">
+            <div>
+              <label for="stepCount" class="block text-xs text-slate-400 mb-1">Steps Walked Today</label>
+              <input id="stepCount" type="number" min="0" max="100000" step="100" value="" placeholder="Enter steps..." oninput="handleFormChange()" class="w-full rounded-lg bg-slate-900 border border-slate-700 px-3 py-2 text-sm font-semibold text-white focus:outline-none focus:border-indigo-500" />
+            </div>
+            <div>
+              <label for="stepGoal" class="block text-xs text-slate-400 mb-1">Daily Step Goal</label>
+              <input id="stepGoal" type="number" min="1000" max="50000" step="500" value="10000" oninput="handleFormChange()" class="w-full rounded-lg bg-slate-900 border border-slate-700 px-3 py-2 text-sm font-semibold text-slate-300 focus:outline-none focus:border-indigo-500" />
+            </div>
+          </div>
+          <div class="flex flex-wrap gap-1.5 pt-1">
+            <span class="text-xs text-slate-500 mr-1 self-center">Quick set:</span>
+            <button type="button" onclick="setStepsQuick(6000)" class="px-2.5 py-1 text-xs rounded-md bg-slate-800 hover:bg-slate-700 text-slate-300">6,000</button>
+            <button type="button" onclick="setStepsQuick(8000)" class="px-2.5 py-1 text-xs rounded-md bg-slate-800 hover:bg-slate-700 text-slate-300">8,000</button>
+            <button type="button" onclick="setStepsQuick(10000)" class="px-2.5 py-1 text-xs rounded-md bg-slate-800 hover:bg-slate-700 text-slate-300">10,000</button>
+            <button type="button" onclick="setStepsQuick(12000)" class="px-2.5 py-1 text-xs rounded-md bg-slate-800 hover:bg-slate-700 text-slate-300">12,000</button>
+          </div>
+        </div>
+
+        <!-- 4. Mood Emoji Selector -->
+        <div class="p-4 rounded-xl bg-slate-950/70 border border-slate-800/90 space-y-3">
+          <div class="flex items-center justify-between">
+            <label class="text-sm font-semibold text-amber-300">✨ Today's Mood</label>
+            <span id="selectedMoodDisplay" class="text-xs font-semibold text-amber-400">🚀 Productive</span>
+          </div>
+          <div id="moodGrid" class="grid grid-cols-4 sm:grid-cols-4 gap-2">
+            <!-- Populated by JS -->
+          </div>
+        </div>
+
+        <!-- Card Visual Theme Selector -->
+        <div class="flex items-center justify-between pt-1">
+          <span class="text-xs font-semibold uppercase tracking-wider text-slate-400">Card Visual Theme</span>
+          <div class="flex items-center gap-2.5">
+            <button type="button" id="themePaper" onclick="setTheme('paper')" title="Clean Daylight" class="theme-swatch active w-7 h-7 rounded-full bg-gradient-to-br from-white via-slate-100 to-indigo-50 border border-slate-300"></button>
+            <button type="button" id="themeMidnight" onclick="setTheme('midnight')" title="Midnight Indigo" class="theme-swatch w-7 h-7 rounded-full bg-gradient-to-br from-slate-900 via-indigo-950 to-slate-900 border border-indigo-400/40"></button>
+            <button type="button" id="themeEmerald" onclick="setTheme('emerald')" title="Forest Focus" class="theme-swatch w-7 h-7 rounded-full bg-gradient-to-br from-slate-900 via-emerald-950 to-teal-950 border border-emerald-400/40"></button>
+            <button type="button" id="themeSunset" onclick="setTheme('sunset')" title="Warm Sunset" class="theme-swatch w-7 h-7 rounded-full bg-gradient-to-br from-slate-900 via-rose-950 to-amber-950 border border-amber-400/40"></button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Right Column: Picture Report Card Preview & Export -->
+      <div class="lg:col-span-6 space-y-4">
+        <div class="bg-slate-900 border border-slate-800 rounded-2xl p-5 sm:p-6 shadow-xl space-y-4">
+          <div class="flex flex-wrap items-center justify-between gap-2">
+            <div>
+              <h2 class="text-base sm:text-lg font-bold text-white">Picture Report Card Preview</h2>
+              <p class="text-xs text-slate-400">High-resolution PNG rendered directly below</p>
+            </div>
+            <span class="px-2.5 py-1 rounded-full text-xs font-semibold bg-emerald-500/10 text-emerald-400 border border-emerald-500/20">
+              HD Picture Card
+            </span>
+          </div>
+
+          <!-- High-Resolution HTML5 Canvas Preview -->
+          <div class="w-full flex justify-center bg-slate-950/90 p-3 sm:p-4 rounded-xl border border-slate-800/80">
+            <canvas id="reportCanvas" width="1080" height="1040" class="w-full max-w-[420px] h-auto rounded-xl shadow-2xl"></canvas>
+          </div>
+
+          <!-- One-Click Action Buttons -->
+          <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 pt-1">
+            <button type="button" onclick="downloadReportImage()" class="w-full py-3 px-4 rounded-xl bg-gradient-to-r from-indigo-600 to-indigo-500 hover:from-indigo-500 hover:to-indigo-400 text-white font-bold text-sm shadow-lg shadow-indigo-600/25 flex items-center justify-center gap-2 transition">
+              <span>📥 Download Picture (PNG)</span>
+            </button>
+            <button type="button" onclick="shareOrCopyImage()" class="w-full py-3 px-4 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white font-bold text-sm shadow-lg shadow-emerald-600/20 flex items-center justify-center gap-2 transition">
+              <span>📤 Share / Copy Picture</span>
+            </button>
+          </div>
+
+          <div class="pt-1">
+            <button type="button" onclick="downloadStandaloneAppFile()" class="w-full py-2.5 px-4 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-200 font-semibold text-xs sm:text-sm flex items-center justify-center gap-2 transition">
+              <span>⬇️ Save Webpage as HTML File (ash_daily_report.html)</span>
+            </button>
+          </div>
+        </div>
+      </div>
+
+    </section>
+  </main>
+
+  <script>
+    const MOOD_OPTIONS = [
+      { id: 'productive', emoji: '🚀', label: 'Productive' },
+      { id: 'locked_in', emoji: '🔥', label: 'Locked In' },
+      { id: 'happy', emoji: '😊', label: 'Happy' },
+      { id: 'calm', emoji: '🧘', label: 'Calm' },
+      { id: 'grinding', emoji: '💪', label: 'Grinding' },
+      { id: 'tired', emoji: '😴', label: 'Tired' },
+      { id: 'distracted', emoji: '🌀', label: 'Distracted' },
+      { id: 'recharging', emoji: '🔋', label: 'Recharging' }
+    ];
+
+    const THEMES = {
+      paper: {
+        bgStart: '#f8fafc',
+        bgMid: '#eef2ff',
+        bgEnd: '#e2e8f0',
+        cardBg: '#ffffff',
+        cardBorder: 'rgba(100, 116, 139, 0.25)',
+        textPrimary: '#0f172a',
+        textSecondary: '#475569',
+        accent: '#4f46e5',
+        studyColor: '#4f46e5',
+        screenColor: '#e11d48',
+        stepColor: '#059669',
+        moodBg: '#e0e7ff',
+        emojiBoxBg: '#ffffff',
+        emojiBoxBorder: '#818cf8'
+      },
+      midnight: {
+        bgStart: '#0f172a',
+        bgMid: '#1e1b4b',
+        bgEnd: '#090d16',
+        cardBg: '#1e293b',
+        cardBorder: 'rgba(148, 163, 184, 0.25)',
+        textPrimary: '#f8fafc',
+        textSecondary: '#94a3b8',
+        accent: '#818cf8',
+        studyColor: '#6366f1',
+        screenColor: '#f43f5e',
+        stepColor: '#10b981',
+        moodBg: '#1e1b4b',
+        emojiBoxBg: '#312e81',
+        emojiBoxBorder: '#818cf8'
+      },
+      emerald: {
+        bgStart: '#062019',
+        bgMid: '#064e3b',
+        bgEnd: '#04130f',
+        cardBg: '#06382c',
+        cardBorder: 'rgba(110, 231, 183, 0.25)',
+        textPrimary: '#ecfdf5',
+        textSecondary: '#a7f3d0',
+        accent: '#34d399',
+        studyColor: '#38bdf8',
+        screenColor: '#fb7185',
+        stepColor: '#34d399',
+        moodBg: '#064e3b',
+        emojiBoxBg: '#047857',
+        emojiBoxBorder: '#6ee7b7'
+      },
+      sunset: {
+        bgStart: '#1f1224',
+        bgMid: '#4c1d3d',
+        bgEnd: '#180d14',
+        cardBg: '#381a30',
+        cardBorder: 'rgba(251, 191, 36, 0.26)',
+        textPrimary: '#fffbeb',
+        textSecondary: '#fde68a',
+        accent: '#fbbf24',
+        studyColor: '#f59e0b',
+        screenColor: '#fb7185',
+        stepColor: '#34d399',
+        moodBg: '#4a1d36',
+        emojiBoxBg: '#6b2146',
+        emojiBoxBorder: '#fbbf24'
+      }
+    };
+
+    let appState = {
+      name: "Ash's Daily Report",
+      date: '',
+      studyHours: 6,
+      studyMins: 30,
+      studyGoalHours: 8,
+      screenHours: 1,
+      screenMins: 45,
+      screenLimitHours: 5,
+      stepCount: 0,
+      stepCountRaw: '',
+      stepGoal: 10000,
+      moodId: 'productive',
+      theme: 'paper'
+    };
+
+    function getTodayISO() {
+      const now = new Date();
+      const y = now.getFullYear();
+      const m = String(now.getMonth() + 1).padStart(2, '0');
+      const d = String(now.getDate()).padStart(2, '0');
+      return `${y}-${m}-${d}`;
+    }
+
+    function showToast(message, type) {
+      const container = document.getElementById('toastContainer');
+      if (!container) return;
+      const toast = document.createElement('div');
+      const bgClass = type === 'error'
+        ? 'bg-rose-600 text-white'
+        : 'bg-slate-800 border border-indigo-500/40 text-white';
+      toast.className = `${bgClass} px-4 py-2.5 rounded-xl shadow-xl text-xs sm:text-sm font-semibold transition-all duration-300`;
+      toast.textContent = message;
+      container.appendChild(toast);
+      setTimeout(() => {
+        if (toast.parentNode) toast.parentNode.removeChild(toast);
+      }, 2800);
+    }
+
+    function renderMoodGrid() {
+      const grid = document.getElementById('moodGrid');
+      if (!grid) return;
+      grid.innerHTML = '';
+      MOOD_OPTIONS.forEach((m) => {
+        const isSelected = m.id === appState.moodId;
+        const btn = document.createElement('button');
+        btn.type = 'button';
+        btn.className = `mood-btn flex flex-col items-center justify-center p-2.5 rounded-xl border text-center transition ${
+          isSelected
+            ? 'active bg-indigo-600/25 border-indigo-400 text-white'
+            : 'bg-slate-900 border-slate-800 text-slate-300 hover:bg-slate-800'
+        }`;
+        btn.innerHTML = `
+          <span class="text-2xl leading-none mb-1">${m.emoji}</span>
+          <span class="text-[11px] font-semibold leading-tight">${m.label}</span>
+        `;
+        btn.addEventListener('click', () => {
+          appState.moodId = m.id;
+          const labelEl = document.getElementById('selectedMoodDisplay');
+          if (labelEl) labelEl.textContent = `${m.emoji} ${m.label}`;
+          renderMoodGrid();
+          drawReportCanvas();
+        });
+        grid.appendChild(btn);
+      });
+    }
+
+    function syncStateFromInputs() {
+      const nameEl = document.getElementById('inputName');
+      const dateEl = document.getElementById('inputDate');
+      const studyH = document.getElementById('studyHours');
+      const studyM = document.getElementById('studyMins');
+      const studyG = document.getElementById('studyGoalHours');
+      const screenH = document.getElementById('screenHours');
+      const screenM = document.getElementById('screenMins');
+      const screenL = document.getElementById('screenLimitHours');
+      const steps = document.getElementById('stepCount');
+      const stepG = document.getElementById('stepGoal');
+
+      appState.name = (nameEl && nameEl.value.trim()) ? nameEl.value.trim() : "Ash's Daily Report";
+      appState.date = (dateEl && dateEl.value) ? dateEl.value : getTodayISO();
+      appState.studyHours = Math.max(0, Math.min(24, Number(studyH ? studyH.value : 0) || 0));
+      appState.studyMins = Math.max(0, Math.min(59, Number(studyM ? studyM.value : 0) || 0));
+      appState.studyGoalHours = Math.max(0.5, Math.min(24, Number(studyG ? studyG.value : 8) || 8));
+
+      appState.screenHours = Math.max(0, Math.min(24, Number(screenH ? screenH.value : 0) || 0));
+      appState.screenMins = Math.max(0, Math.min(59, Number(screenM ? screenM.value : 0) || 0));
+      appState.screenLimitHours = Math.max(0.5, Math.min(24, Number(screenL ? screenL.value : 5) || 5));
+
+      appState.stepCountRaw = steps ? steps.value.trim() : '';
+      appState.stepCount = appState.stepCountRaw === '' ? 0 : Math.max(0, Number(appState.stepCountRaw) || 0);
+      appState.stepGoal = Math.max(500, Number(stepG ? stepG.value : 10000) || 10000);
+
+      const studyTargetLabel = document.getElementById('studyTargetLabel');
+      if (studyTargetLabel) {
+        const gh = Math.floor(appState.studyGoalHours);
+        const gm = Math.round((appState.studyGoalHours - gh) * 60);
+        studyTargetLabel.textContent = `Goal: ${gh}h ${gm}m`;
+      }
+
+      const screenLimitLabel = document.getElementById('screenLimitLabel');
+      if (screenLimitLabel) {
+        const lh = Math.floor(appState.screenLimitHours);
+        const lm = Math.round((appState.screenLimitHours - lh) * 60);
+        screenLimitLabel.textContent = `Limit: ${lh}h ${lm}m`;
+      }
+
+      const stepGoalLabel = document.getElementById('stepGoalLabel');
+      if (stepGoalLabel) {
+        stepGoalLabel.textContent = `Goal: ${appState.stepGoal.toLocaleString()} steps`;
+      }
+    }
+
+    function handleFormChange() {
+      syncStateFromInputs();
+      drawReportCanvas();
+    }
+
+    function setStudyQuick(hrs, mins) {
+      const studyH = document.getElementById('studyHours');
+      const studyM = document.getElementById('studyMins');
+      if (studyH) studyH.value = String(hrs);
+      if (studyM) studyM.value = String(mins);
+      handleFormChange();
+    }
+
+    function setStepsQuick(stepsVal) {
+      const steps = document.getElementById('stepCount');
+      if (steps) steps.value = String(stepsVal);
+      handleFormChange();
+    }
+
+    function setTheme(themeKey) {
+      if (!THEMES[themeKey]) return;
+      appState.theme = themeKey;
+      const mapping = {
+        paper: 'themePaper',
+        midnight: 'themeMidnight',
+        emerald: 'themeEmerald',
+        sunset: 'themeSunset'
+      };
+      Object.keys(mapping).forEach((k) => {
+        const btn = document.getElementById(mapping[k]);
+        if (btn) {
+          if (k === themeKey) btn.classList.add('active');
+          else btn.classList.remove('active');
+        }
+      });
+      drawReportCanvas();
+    }
+
+    function formatDisplayDate(isoStr) {
+      if (!isoStr) return 'Today';
+      const parts = isoStr.split('-');
+      if (parts.length !== 3) return isoStr;
+      const d = new Date(Number(parts[0]), Number(parts[1]) - 1, Number(parts[2]));
+      if (isNaN(d.getTime())) return isoStr;
+      return d.toLocaleDateString('en-US', {
+        weekday: 'short',
+        month: 'short',
+        day: 'numeric',
+        year: 'numeric'
+      });
+    }
+
+    function drawRoundedRect(ctx, x, y, w, h, r) {
+      const radius = Math.min(r, w / 2, h / 2);
+      ctx.beginPath();
+      ctx.moveTo(x + radius, y);
+      ctx.arcTo(x + w, y, x + w, y + h, radius);
+      ctx.arcTo(x + w, y + h, x, y + h, radius);
+      ctx.arcTo(x, y + h, x, y, radius);
+      ctx.arcTo(x, y, x + w, y, radius);
+      ctx.closePath();
+    }
+
+    function computeDailyScore() {
+      const studyTotalMins = appState.studyHours * 60 + appState.studyMins;
+      const studyGoalMins = Math.max(1, appState.studyGoalHours * 60);
+      const studyScore = Math.min(1, studyTotalMins / studyGoalMins) * 45;
+
+      const stepRatio = Math.min(1, appState.stepCount / Math.max(1, appState.stepGoal));
+      const stepScore = stepRatio * 35;
+
+      const screenTotalMins = appState.screenHours * 60 + appState.screenMins;
+      const screenLimitMins = Math.max(1, appState.screenLimitHours * 60);
+      let screenScore = 20;
+      if (screenTotalMins > screenLimitMins) {
+        const overRatio = (screenTotalMins - screenLimitMins) / screenLimitMins;
+        screenScore = Math.max(0, 20 * (1 - overRatio));
+      }
+
+      return Math.round(studyScore + stepScore + screenScore);
+    }
+
+    function drawCrispEmoji(ctx, emojiChar, centerX, centerY, pixelSize) {
+      ctx.save();
+      ctx.globalAlpha = 1.0;
+      ctx.fillStyle = '#000000';
+      ctx.font = `${pixelSize}px "Apple Color Emoji", "Segoe UI Emoji", "Noto Color Emoji", Inter, sans-serif`;
+      ctx.textAlign = 'center';
+      ctx.textBaseline = 'middle';
+      ctx.fillText(emojiChar, centerX, centerY);
+      ctx.restore();
+    }
+
+    function drawReportCanvas() {
+      const canvas = document.getElementById('reportCanvas');
+      if (!canvas) return;
+      const ctx = canvas.getContext('2d');
+      const W = canvas.width;
+      const H = canvas.height;
+      const theme = THEMES[appState.theme] || THEMES.paper;
+      const mood = MOOD_OPTIONS.find((m) => m.id === appState.moodId) || MOOD_OPTIONS[0];
+
+      // 1. Background Gradient
+      const bgGrad = ctx.createLinearGradient(0, 0, W, H);
+      bgGrad.addColorStop(0, theme.bgStart);
+      bgGrad.addColorStop(0.5, theme.bgMid);
+      bgGrad.addColorStop(1, theme.bgEnd);
+      ctx.fillStyle = bgGrad;
+      ctx.fillRect(0, 0, W, H);
+
+      // Decorative subtle glow circles
+      ctx.save();
+      ctx.globalAlpha = 0.10;
+      ctx.fillStyle = theme.accent;
+      ctx.beginPath();
+      ctx.arc(W - 120, 120, 200, 0, Math.PI * 2);
+      ctx.fill();
+      ctx.beginPath();
+      ctx.arc(120, H - 120, 220, 0, Math.PI * 2);
+      ctx.fill();
+      ctx.restore();
+
+      // 2. Outer Card Frame
+      drawRoundedRect(ctx, 48, 48, W - 96, H - 96, 40);
+      ctx.strokeStyle = theme.cardBorder;
+      ctx.lineWidth = 3;
+      ctx.stroke();
+
+      // 3. Header Section (Clean Title + Date + Daily Score)
+      ctx.fillStyle = theme.textPrimary;
+      ctx.font = '800 54px Inter, sans-serif';
+      ctx.fillText(appState.name.slice(0, 28), 96, 146);
+
+      drawCrispEmoji(ctx, '📅', 114, 198, 28);
+      ctx.fillStyle = theme.textSecondary;
+      ctx.font = '600 28px Inter, sans-serif';
+      ctx.fillText(formatDisplayDate(appState.date), 140, 207);
+
+      // Overall Daily Score Pill on Top Right
+      const score = computeDailyScore();
+      drawRoundedRect(ctx, W - 300, 92, 204, 118, 28);
+      ctx.fillStyle = theme.cardBg;
+      ctx.fill();
+      ctx.strokeStyle = theme.cardBorder;
+      ctx.lineWidth = 2;
+      ctx.stroke();
+
+      ctx.fillStyle = theme.textSecondary;
+      ctx.font = '700 20px Inter, sans-serif';
+      ctx.textAlign = 'center';
+      ctx.fillText('DAILY SCORE', W - 198, 132);
+
+      ctx.fillStyle = theme.accent;
+      ctx.font = '800 46px Inter, sans-serif';
+      ctx.fillText(`${score}/100`, W - 198, 188);
+      ctx.textAlign = 'left';
+
+      // 4. Today's Mood Banner
+      const moodY = 248;
+      const moodH = 148;
+      drawRoundedRect(ctx, 96, moodY, W - 192, moodH, 30);
+      ctx.fillStyle = theme.moodBg;
+      ctx.fill();
+      ctx.strokeStyle = theme.cardBorder;
+      ctx.lineWidth = 2;
+      ctx.stroke();
+
+      // Highlighted Emoji Badge Container
+      const badgeX = 124;
+      const badgeY = moodY + 20;
+      const badgeSize = 108;
+      ctx.save();
+      ctx.shadowColor = 'rgba(79, 70, 229, 0.22)';
+      ctx.shadowBlur = 18;
+      ctx.shadowOffsetY = 4;
+      drawRoundedRect(ctx, badgeX, badgeY, badgeSize, badgeSize, 26);
+      ctx.fillStyle = theme.emojiBoxBg;
+      ctx.fill();
+      ctx.restore();
+
+      drawRoundedRect(ctx, badgeX, badgeY, badgeSize, badgeSize, 26);
+      ctx.strokeStyle = theme.emojiBoxBorder;
+      ctx.lineWidth = 3;
+      ctx.stroke();
+
+      drawCrispEmoji(ctx, mood.emoji, badgeX + badgeSize / 2, badgeY + badgeSize / 2 + 3, 66);
+
+      ctx.fillStyle = theme.textSecondary;
+      ctx.font = '700 22px Inter, sans-serif';
+      ctx.fillText("TODAY'S MOOD", 260, moodY + 60);
+
+      ctx.fillStyle = theme.textPrimary;
+      ctx.font = '800 46px Inter, sans-serif';
+      ctx.fillText(mood.label, 260, moodY + 112);
+
+      // 5. Three Core Metric Cards (Study Time, Screen Time, Step Count)
+      const studyTotalMins = appState.studyHours * 60 + appState.studyMins;
+      const studyGoalMins = Math.max(1, appState.studyGoalHours * 60);
+      const studyPct = Math.min(100, Math.round((studyTotalMins / studyGoalMins) * 100));
+
+      const screenTotalMins = appState.screenHours * 60 + appState.screenMins;
+      const screenLimitMins = Math.max(1, appState.screenLimitHours * 60);
+      const screenPct = Math.min(100, Math.round((screenTotalMins / screenLimitMins) * 100));
+      const screenWithinLimit = screenTotalMins <= screenLimitMins;
+
+      const stepPct = Math.min(100, Math.round((appState.stepCount / Math.max(1, appState.stepGoal)) * 100));
+      const stepValueText = appState.stepCountRaw === '' ? '— steps' : `${appState.stepCount.toLocaleString()} steps`;
+      const stepSubText = appState.stepCountRaw === ''
+        ? `Target: ${appState.stepGoal.toLocaleString()} steps`
+        : `Target: ${appState.stepGoal.toLocaleString()} steps  •  ~${(appState.stepCount * 0.00076).toFixed(1)} km walked`;
+      const stepBadgeText = appState.stepCountRaw === ''
+        ? 'NOT ENTERED'
+        : (stepPct >= 100 ? '10K+ CRUSHED ✓' : `${stepPct}% OF GOAL`);
+
+      const metrics = [
+        {
+          icon: '📚',
+          title: 'STUDY TIME',
+          value: `${appState.studyHours}h ${appState.studyMins}m`,
+          sub: `Target: ${appState.studyGoalHours}h  •  ${studyPct}% of daily goal`,
+          pct: studyPct,
+          color: theme.studyColor,
+          badge: studyPct >= 100 ? 'GOAL MET ✓' : `${studyPct}% DONE`
+        },
+        {
+          icon: '📱',
+          title: 'SCREEN TIME',
+          value: `${appState.screenHours}h ${appState.screenMins}m`,
+          sub: `Limit: ${appState.screenLimitHours}h  •  ${screenWithinLimit ? 'Within healthy limit' : 'Above target limit'}`,
+          pct: screenPct,
+          color: screenWithinLimit ? '#10b981' : theme.screenColor,
+          badge: screenWithinLimit ? 'UNDER LIMIT ✓' : 'WATCH LIMIT'
+        },
+        {
+          icon: '👟',
+          title: 'STEP COUNT',
+          value: stepValueText,
+          sub: stepSubText,
+          pct: stepPct,
+          color: theme.stepColor,
+          badge: stepBadgeText
+        }
+      ];
+
+      let cardY = 424;
+      const cardH = 168;
+      const cardGap = 22;
+
+      metrics.forEach((m) => {
+        drawRoundedRect(ctx, 96, cardY, W - 192, cardH, 28);
+        ctx.fillStyle = theme.cardBg;
+        ctx.fill();
+        ctx.strokeStyle = theme.cardBorder;
+        ctx.lineWidth = 2;
+        ctx.stroke();
+
+        drawCrispEmoji(ctx, m.icon, 156, cardY + 64, 50);
+
+        ctx.fillStyle = theme.textSecondary;
+        ctx.font = '700 21px Inter, sans-serif';
+        ctx.fillText(m.title, 212, cardY + 48);
+
+        ctx.fillStyle = theme.textPrimary;
+        ctx.font = '800 42px Inter, sans-serif';
+        ctx.fillText(m.value, 212, cardY + 95);
+
+        ctx.font = '700 20px Inter, sans-serif';
+        ctx.fillStyle = m.color;
+        ctx.textAlign = 'right';
+        ctx.fillText(m.badge, W - 134, cardY + 52);
+        ctx.textAlign = 'left';
+
+        ctx.fillStyle = theme.textSecondary;
+        ctx.font = '500 21px Inter, sans-serif';
+        ctx.fillText(m.sub, 212, cardY + 126);
+
+        const barX = 132;
+        const barY = cardY + 142;
+        const barW = W - 264;
+        const barH = 12;
+        drawRoundedRect(ctx, barX, barY, barW, barH, 6);
+        ctx.fillStyle = 'rgba(148, 163, 184, 0.22)';
+        ctx.fill();
+
+        if (m.pct > 0) {
+          const fillW = Math.max(12, (barW * Math.min(100, m.pct)) / 100);
+          drawRoundedRect(ctx, barX, barY, fillW, barH, 6);
+          ctx.fillStyle = m.color;
+          ctx.fill();
+        }
+
+        cardY += cardH + cardGap;
+      });
+    }
+
+    function downloadReportImage() {
+      syncStateFromInputs();
+      drawReportCanvas();
+      const canvas = document.getElementById('reportCanvas');
+      if (!canvas) return;
+      const dataUrl = canvas.toDataURL('image/png');
+      const link = document.createElement('a');
+      const safeDate = appState.date || getTodayISO();
+      link.download = `ash-study-report-${safeDate}.png`;
+      link.href = dataUrl;
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+      showToast('Picture report card downloaded as PNG!');
+    }
+
+    async function shareOrCopyImage() {
+      syncStateFromInputs();
+      drawReportCanvas();
+      const canvas = document.getElementById('reportCanvas');
+      if (!canvas) return;
+
+      canvas.toBlob(async (blob) => {
+        if (!blob) {
+          downloadReportImage();
+          return;
+        }
+        const safeDate = appState.date || getTodayISO();
+        const file = new File([blob], `ash-study-report-${safeDate}.png`, { type: 'image/png' });
+
+        if (navigator.canShare && navigator.canShare({ files: [file] })) {
+          try {
+            await navigator.share({
+              title: `${appState.name} (${safeDate})`,
+              text: `Here is my daily study & activity report card for ${safeDate}!`,
+              files: [file]
+            });
+            showToast('Shared report card picture!');
+            return;
+          } catch (err) {
+            // Continue to clipboard fallback
+          }
+        }
+
+        if (navigator.clipboard && window.ClipboardItem) {
+          try {
+            const item = new ClipboardItem({ 'image/png': blob });
+            await navigator.clipboard.write([item]);
+            showToast('Picture copied to clipboard! Paste directly in WhatsApp/Telegram.');
+            return;
+          } catch (err) {
+            // Continue to download fallback
+          }
+        }
+
+        downloadReportImage();
+      }, 'image/png');
+    }
+
+    function resetToDefaults() {
+      document.getElementById('inputName').value = "Ash's Daily Report";
+      document.getElementById('inputDate').value = getTodayISO();
+      document.getElementById('studyHours').value = '6';
+      document.getElementById('studyMins').value = '30';
+      document.getElementById('studyGoalHours').value = '8';
+      document.getElementById('screenHours').value = '1';
+      document.getElementById('screenMins').value = '45';
+      document.getElementById('screenLimitHours').value = '5';
+      document.getElementById('stepCount').value = '';
+      document.getElementById('stepGoal').value = '10000';
+      appState.moodId = 'productive';
+      const labelEl = document.getElementById('selectedMoodDisplay');
+      if (labelEl) labelEl.textContent = '🚀 Productive';
+      setTheme('paper');
+      renderMoodGrid();
+      handleFormChange();
+      showToast('Form reset to default values.');
+    }
+
+    function downloadStandaloneAppFile() {
+      const htmlContent = '<!DOCTYPE html>\n' + document.documentElement.outerHTML;
+      const blob = new Blob([htmlContent], { type: 'text/html;charset=utf-8' });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = 'ash_daily_report.html';
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+      URL.revokeObjectURL(url);
+      showToast('Downloaded ash_daily_report.html!');
+    }
+
+    window.addEventListener('DOMContentLoaded', () => {
+      const nameInput = document.getElementById('inputName');
+      if (nameInput) nameInput.value = "Ash's Daily Report";
+      const dateInput = document.getElementById('inputDate');
+      if (dateInput) dateInput.value = getTodayISO();
+      const stepInput = document.getElementById('stepCount');
+      if (stepInput) stepInput.value = '';
+      const screenLimitInput = document.getElementById('screenLimitHours');
+      if (screenLimitInput) screenLimitInput.value = '5';
+      renderMoodGrid();
+      syncStateFromInputs();
+      drawReportCanvas();
+    });
+  </script>
+</body>
+</html>
